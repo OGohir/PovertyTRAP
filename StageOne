@@ -1,0 +1,1093 @@
+/**
+*
+* In this class, the main idea is to implement the parts as to what happens when an image is clicked,
+* timing the image, and showing different types of images using overlays and the timing with delay.
+* This class shows the character struggling to make ends meet with their low income job, when one
+* button of welfare ic clicked. things pop up on this game screen. Health, family management and
+* food bars are on the sides which are slowly decreasing as the game goes forward.
+*/
+
+
+//imports packages, and necessary logics to complete transitions and adding images.
+package com.culminating.game;
+
+
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
+
+//chat gpt starter code
+public class StageOne implements Screen {
+   private Starter game;
+   private SpriteBatch spriteBatch;
+   private Texture backgroundTexture;
+   private Stage stage;
+   private Texture image1Texture;
+   private Texture image2Texture;
+   private Texture barGTexture;
+   private Texture newButtonTexture;
+   private Texture houseTexture;
+   private Array<Image> barGImages;
+   private Texture girlTexture;
+   private boolean thirdImageVisible = false;
+   private int barGCount = 0;
+   private long lastButtonClickTime;
+   private boolean houseVisible = false;
+   /*declare acceptClicked variable @author Shaama*/
+   private boolean acceptClicked;
+   /**
+    * constant values for the button
+    */
+   private static final int buttonWidth = 150;
+   private static final int buttonLength = 50;
+   private static final int buttonY = 150;
+   private static final int acceptX = 230;
+
+   /**
+    * declaring batch, float, long, and Texture variables
+    */
+   Texture jobOfferBG;
+   Texture acceptInactive;
+   Texture acceptActive;
+   //change delay time according to omaimas screen
+   float delay = 15;
+   long startTime;
+
+
+   public StageOne(Starter game) {
+
+
+       this.game = game;
+   }
+
+   /**
+    * Displays images on the stage in a LibGDX application, handling creation,
+    * positioning, sizing, and addition of images. Manages removal of non-barGTexture
+    * images after a specified time period and transitions barGTexture images after
+    * the same time period. Used to visually represent various elements in the application.
+    * @Author Omaima
+    *
+    * @param imageTexture
+    */
+
+
+   private void showImage(Texture imageTexture) {
+       //create a new Image instance with the specified texture
+       Image image = new Image(new TextureRegionDrawable(imageTexture));
+
+
+       //calculate the position of the image
+       float imageX = Gdx.graphics.getWidth() * 0.01f;
+       float imageY = Gdx.graphics.getHeight() * (0.01f + barGCount * 0.25f);
+       image.setPosition(imageX, imageY);
+
+
+       //sets the size of the image
+       float imageWidth = Gdx.graphics.getWidth() * 0.2f;
+       float imageHeight = Gdx.graphics.getHeight() * 0.2f;
+       image.setSize(imageWidth, imageHeight);
+
+
+       //adds the image to the stage
+       stage.addActor(image);
+
+
+       //checks if the current image is not the barGTexture
+       if (imageTexture != barGTexture) {
+           // Schedule a task to remove the image after 20 seconds
+           Timer.schedule(new Timer.Task() {
+               @Override
+               public void run() {
+                   image.remove();
+               }
+           }, 20);
+       }
+
+
+       //checks if the current image is the barGTexture
+       if (imageTexture == barGTexture) {
+           //increase the barGCount
+           barGCount++;
+
+
+
+
+           //schedules a task to change the image to barY.png after 20 seconds
+           Timer.schedule(new Timer.Task() {
+               @Override
+               public void run() {
+                   image.setDrawable(new TextureRegionDrawable(new Texture(Gdx.files.internal("barY.png"))));
+               }
+           }, 7);
+
+           Timer.schedule(new Timer.Task() {
+               @Override
+               public void run() {
+                   image.setDrawable(new TextureRegionDrawable(new Texture(Gdx.files.internal("barG.png"))));
+               }
+           }, 15);
+
+           Timer.schedule(new Timer.Task() {
+               @Override
+               public void run() {
+                   showImage(houseTexture);
+               }
+           }, 10);
+
+
+           //adds the image to the barGImages array
+           barGImages.add(image);
+       }
+   }
+
+
+   /**
+    * Displays overlay images on the stage based on existing barGImages. Each overlay image is positioned,
+    * sized, and added to the stage. It is then scheduled to be removed after 20 seconds.
+    * Additionally, it checks if 20 seconds have passed since the last button click and initiates
+    * the transition check.
+    *
+    * @param overlayTexture
+    */
+
+   //chatgpt code starts
+   private void showOverlayImage(Texture overlayTexture) {
+       //iterates through existing barGImages and create overlay images
+       for (Image barGImage : barGImages) {
+           //creates a new overlay image
+           Image overlayImage = new Image(new TextureRegionDrawable(overlayTexture));
+
+           //sets the position of the overlay image to match the corresponding barGImage
+           overlayImage.setPosition(barGImage.getX(), barGImage.getY());
+
+           //sets the size of the overlay image to match the corresponding barGImage
+           overlayImage.setSize(barGImage.getWidth(), barGImage.getHeight());
+
+
+           //adds the overlay image to the stage
+           stage.addActor(overlayImage);
+           //chatgpt code ends
+
+
+           //omaimas code starts
+           //schedule a task to remove the overlay image after 20 seconds
+           Timer.schedule(new Timer.Task() {
+               @Override
+               public void run() {
+                   overlayImage.remove();
+               }
+           }, 20);  //delays for removing overlayImage
+       }
+
+
+       //checks if 20 seconds have passed since the last button click
+       Timer.schedule(new Timer.Task() {
+           @Override
+           public void run() {
+               checkTransition();
+           }
+       }, 20);  //DelayS for checking transition
+   }
+   //omaimas code ends
+
+   //omaimas code starts
+
+   /**
+    * Checks for a transition after a delay and initiates the display of a new overlay image.
+    * The delay time is set to 40 seconds (till it resets to barR [red bar])
+    * @Author omaima
+    */
+
+
+   private void checkTransition() {
+       // Schedule a task to show a new overlay image after 40 seconds
+       Timer.schedule(new Timer.Task() {
+           @Override
+           public void run() {
+               showOverlayImage(new Texture(Gdx.files.internal("barR.png")));
+           }
+       }, 10);  // Adjust the delay time (1 second in this example)
+   }
+//omaimas code ends
+
+
+
+
+   //chat gpt source code to show text, I also added my own logic for this
+   /**
+    * This class creates the labels for the bars, which include the health bars name,
+    * which is located on top of the bars. text1 = 'Health', text2 = 'Family', text3 = 'Food'
+    *
+    * @param text1
+    * @param text2
+    * @param text3
+    */
+
+
+   private void createLabels(String text1, String text2, String text3) {
+//barG image is an instance of Image, and barG is a list, so the loop basically goes over the images stored in barG images
+       for (Image barGImage : barGImages) {
+           //chat gpt ends
+
+
+           //omaimas code/logic
+           Label label1 = new Label(text1, new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+           Label label2 = new Label(text2, new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+           Label label3 = new Label(text3, new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+
+
+           label1.setPosition(15, 65);
+           label2.setPosition(15, 185);
+           label3.setPosition( 15, 305);
+
+
+           stage.addActor(label1);
+           stage.addActor(label2);
+           stage.addActor(label3);
+       }
+   }
+   //omaimas code ends
+
+   /**
+    * Creates a new ImageButton with the specified image texture, position, scale, and touch area scale.
+    * Adds a ClickListener to the button, which triggers actions upon button click, such as updating
+    * the last button click time, showing an overlay image, and
+    * displaying a house image
+    *
+    * @Author omaima
+    *
+    * @param imageTexture
+    * @param x
+    * @param y
+    * @param scale
+    * @param touchAreaScale
+    */
+   private void createImageButton(Texture imageTexture, float x, float y, float scale, float touchAreaScale) {
+       // Create a new ImageButton with the specified image texture
+       ImageButton imageButton = new ImageButton(new TextureRegionDrawable(imageTexture));
+
+
+       // Add a clickListener to the button for handling button click events
+       imageButton.addListener(new ClickListener() {
+           @Override
+           public void clicked(InputEvent event, float x, float y) {
+               //updates the last button click time
+               lastButtonClickTime = TimeUtils.millis();
+
+
+               //shows an overlay image (barY.png)
+               showOverlayImage(new Texture(Gdx.files.internal("barY.png")));
+
+
+               //increase the barGCount
+               barGCount++;
+
+
+               //shows the house only if it's not already visible (to debug the two houses showing up
+               if (!houseVisible) {
+                   showImage(houseTexture);
+                   houseVisible = true;
+               }
+           }
+       });
+
+       /**
+        * i searched on google to find out how to set the position and scale the sizing of the images. I made similar code using
+        * this persons logic: https://stackoverflow.com/questions/22999921/how-to-properly-use-setposition-in-libgdx
+        */
+
+       //omaimas code starts
+       //calculate button width and height based on scale
+       float buttonWidth = imageButton.getWidth() * scale;
+       float buttonHeight = imageButton.getHeight() * scale;
+
+       // Set the position of the button on the screen
+       imageButton.setPosition(Gdx.graphics.getWidth() * x, Gdx.graphics.getHeight() * y);
+
+       //set the size of the button
+       imageButton.getImageCell().size(buttonWidth, buttonHeight);
+
+       //calculates the touch area width and height based on touchAreaScale
+       float touchAreaWidth = buttonWidth * touchAreaScale;
+       float touchAreaHeight = buttonHeight * touchAreaScale;
+
+       //set the size of the touch area of the button
+       imageButton.setSize(touchAreaWidth, touchAreaHeight);
+       imageButton.getImageCell().size(touchAreaWidth, touchAreaHeight);
+
+       // Add the ImageButton to the stage
+       stage.addActor(imageButton);
+   }
+   //omaimas code ends
+
+   /**
+    * Creates a new ImageButton for welfare two with the specified image texture, position, scale, and touch area scale.
+    * Adds a ClickListener to the button, which triggers actions upon button click, such as updating
+    * the last button click time, showing an overlay image, and displaying a house image.
+    *
+    * @Author Omaima
+    *
+    * @param imageTexture
+    * @param x
+    * @param y
+    * @param scale
+    * @param touchAreaScale
+   
+    */
+   private void createWelfareTwoButton(Texture imageTexture, float x, float y, float scale, float touchAreaScale) {
+       // Create a new ImageButton for welfare two with the specified image texture
+       ImageButton welfareTwoButton = new ImageButton(new TextureRegionDrawable(imageTexture));
+
+       // Add a ClickListener to the button for handling button click events
+       welfareTwoButton.addListener(new ClickListener() {
+           @Override
+           public void clicked(InputEvent event, float x, float y) {
+               // Update the last button click time
+               lastButtonClickTime = TimeUtils.millis();
+
+               // Show an overlay image (barY.png)
+               showOverlayImage(new Texture(Gdx.files.internal("barY.png")));
+
+               // Show the house image
+               showImage(houseTexture);
+
+               // Set the houseVisible flag to true
+               houseVisible = true;
+           }
+       });
+
+       /**
+        * I searched on google to find out how to set the position and scale the sizing of the images. I made similar code using
+        * this persons logic: https://stackoverflow.com/questions/22999921/how-to-properly-use-setposition-in-libgdx
+        */
+
+
+       //omaimas code starts
+       float buttonWidth = welfareTwoButton.getWidth() * scale;
+       float buttonHeight = welfareTwoButton.getHeight() * scale;
+
+       welfareTwoButton.setPosition(Gdx.graphics.getWidth() * x, Gdx.graphics.getHeight() * y);
+       welfareTwoButton.getImageCell().size(buttonWidth, buttonHeight);
+
+       float touchAreaWidth = buttonWidth * touchAreaScale;
+       float touchAreaHeight = buttonHeight * touchAreaScale;
+
+       welfareTwoButton.setSize(touchAreaWidth, touchAreaHeight);
+       welfareTwoButton.getImageCell().size(touchAreaWidth, touchAreaHeight);
+
+       stage.addActor(welfareTwoButton);
+   }
+
+   //omaimas code ends
+   /**
+    * this method helps show the images and adds the images to the screen and the code.
+    */
+   @Override
+   public void show() {
+       spriteBatch = new SpriteBatch();
+
+       jobOfferBG = new Texture("job offer.png");
+       acceptInactive = new Texture("acceptInactive.png");
+       acceptActive = new Texture("acceptActive.png");
+       startTime = TimeUtils.nanoTime();
+
+       //omaima's code starts
+       //importing images
+       backgroundTexture = new Texture(Gdx.files.internal("background.png"));
+       //sets the stage
+       stage = new Stage();
+       Gdx.input.setInputProcessor(stage);
+
+       image1Texture = new Texture(Gdx.files.internal("welfareone.png"));
+       image2Texture = new Texture(Gdx.files.internal("welfaretwo.png"));
+       barGTexture = new Texture(Gdx.files.internal("barR.png"));
+       newButtonTexture = new Texture(Gdx.files.internal("welfarethree.png"));
+       girlTexture = new Texture(Gdx.files.internal("character.png"));
+       houseTexture = new Texture(Gdx.files.internal("house.png"));
+       barGImages = new Array<>();  //creates the array, chat gpt helped with this for adding three images
+
+
+       //adds the first barG.png image
+       showImage(barGTexture);
+       //adds the second barG.png image
+       showImage(barGTexture);
+       //adds the third barG.png image
+       showImage(barGTexture);
+
+       //creates the clickable buttons
+       createImageButton(image1Texture, 0.7f, 0.4f, 0.9f, 0.5f);
+       createWelfareTwoButton(image2Texture, 0.7f, 0.3f, 0.9f, 0.5f);
+       createImageButton(newButtonTexture, 0.7f, 0.2f, 0.9f, 0.5f);
+
+       //creates the texts, text1 = Health, text2 = Family, text3 = Food
+       createLabels("Health", "Family", "Food");
+
+       //schedules a task to switch to another image after 5 seconds for barG.png.
+       Timer.schedule(new Timer.Task() {
+
+           /**
+           this class displays the barG texture after 10 seconds
+            */
+
+           @Override
+           public void run() {
+               showOverlayImage(new Texture(Gdx.files.internal("barG.png")));
+           }
+       }, 10);
+//omaimas code ends
+
+       /*
+        * create inputProcessor to handle mouse clicks @author Omaima
+        *
+        * */
+       Gdx.input.setInputProcessor(new InputAdapter() {
+
+           @Override
+           /* checks to see if accept button is clicked using
+            * the touchDown method from the inputProcessor
+            * @author Shaama
+            *  */
+           public boolean touchDown (int x, int y, int pointer, int button) {
+               /*
+                * the coordinates of where a user clicks
+                * @author Omaima
+                * */
+
+               float touchX = Gdx.input.getX();
+               float touchY = Gdx.input.getY();
+               System.out.println("accept x:" + acceptX);
+               System.out.println("touchX" + touchX);
+
+               /*checks to see if the users click is within the width and height
+                * of a desired image
+                * @author Shaama*/
+               if(
+                       touchX >= acceptX
+                               && touchX <= (acceptX +buttonWidth)
+                               && touchY <= Gdx.graphics.getHeight() - buttonY
+                               && touchY >= ((Gdx.graphics.getHeight() - buttonY) - buttonLength)
+               ){
+                   /*if image is clicked within region, acceptClicked = true;
+                    * @Omaima*/
+                   acceptClicked = true;
+
+                   System.out.println("clicked");
+               }
+               return true;
+           }
+       });
+   }
+
+   /**
+    * The main rendering method called by the game loop. Clears the screen, draws the background texture,
+    * renders the girl image at the center of the screen, updates and draws the scene2d.ui stage,
+    * and draws the house image on the top left if it's visible.
+    *
+    * @param delta
+    */
+
+   //chat gpt starter code
+
+   @Override
+   public void render(float delta) {
+       // Clear the screen with a black color
+       Gdx.gl.glClearColor(0, 0, 0, 1);
+       Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+       // Begin drawing using the spriteBatch
+       spriteBatch.begin();
+
+       // Draw the background texture to cover the entire screen
+       spriteBatch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+       /**
+        * if the timer runs out the job offer pops up
+        * if the startTime is larger than the delay and that many nano seconds
+        */
+
+       //chatgpt used for timer
+       if (TimeUtils.timeSinceNanos(startTime) > delay * 1000000000L) {
+           /**
+            * draws the job offer
+            */
+           spriteBatch.draw(jobOfferBG, 10, 40, 600, 400);
+           /**
+            * if the mouse is on top of the accept button
+            * finds mouse coordinates and references them with the coordinates of the accept button Texture
+            * if they overlap, the Inactive button is replaced by the Active button
+            */
+           //Hollowbit on YouTube for coordinate overlap referencing
+           if(Gdx.input.getX() <  acceptX  + buttonWidth  && Gdx.input.getX() > acceptX && Gdx.graphics.getHeight() - Gdx.input.getY() < buttonY + buttonLength && Gdx.graphics.getHeight() - Gdx.input.getY() > buttonY)
+           {
+               /**
+                * draws active accept button
+                */
+               spriteBatch.draw(acceptActive, acceptX, buttonY, buttonWidth, buttonLength);
+               /**
+                * registers mouse clicks
+                */
+               if(Gdx.input.isTouched())
+               {
+                   //screen switching
+               }
+           }
+           else
+           {
+               /**
+                * draws inactive button when coordinates do not overlap
+                */
+               spriteBatch.draw(acceptInactive, acceptX, buttonY, buttonWidth, buttonLength);
+           }
+       }
+       //chat GPT code ends
+
+       //omaima's code starts
+       //calculate position for the girl image in the middle of the screen
+       float girlX = (Gdx.graphics.getWidth() - girlTexture.getWidth()) / 2f;
+       float girlY = 5f;
+
+       //defines the scale factor (e.g., 1.5 for 150% size)
+       float girlScale = 0.5f;
+
+       //draws the girl image with adjusted width and height
+       spriteBatch.draw(girlTexture, girlX, girlY, girlTexture.getWidth() * girlScale, girlTexture.getHeight() * girlScale);
+
+       //ends the spriteBatch drawing
+       spriteBatch.end();
+
+       //updates and draw the stage
+       stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+       stage.draw();
+
+       //draws the house image on the top left if it's visible
+       if (houseVisible) {
+           spriteBatch.begin();
+
+           //calculates the  position based on screen dimensions
+           float houseX = Gdx.graphics.getWidth() * 0.9f;
+           float houseY = Gdx.graphics.getHeight() * 0.01f;
+
+           //defines the scale factor for the house (0.5 for 50% size)
+           float houseScale = 0.2f;
+
+           //draws the house image with adjusted width and height
+           spriteBatch.draw(houseTexture, houseX, houseY, houseTexture.getWidth() * houseScale, houseTexture.getHeight() * houseScale);
+           spriteBatch.end();
+       }
+
+       //omaimas code ends
+
+       /*if acceptClicked, switch to miniGame*/
+       if (acceptClicked){
+           game.switchToMiniGame();
+       }
+       if (houseVisible) {
+           spriteBatch.begin();
+           // Calculate the position based on screen dimensions
+           float houseX = Gdx.graphics.getWidth() * 0.01f;
+           float houseY = Gdx.graphics.getHeight() * 0.9f;
+           // Define the scale factor for the house (0.2 for 20% size)
+           float houseScale = 0.2f;
+           // Draw the house image with adjusted width and height
+           spriteBatch.draw(houseTexture, houseX, houseY, houseTexture.getWidth() * houseScale, houseTexture.getHeight() * houseScale);
+           spriteBatch.end();
+       }
+   }
+
+   @Override
+   public void resize(int i, int i1) {
+
+   }
+
+   @Override
+   public void pause() {
+
+   }
+
+   @Override
+   public void resume() {
+
+   }
+
+   @Override
+   public void hide() {
+   }
+  
+   //omaimas code starts
+
+   /**
+    * disposes of items/images and cleans up memory to prevent memory leaks. its basically called when
+    * the application is closing or the screen is no longer needed. it disposes of spriteBatch,
+    * backgroundTexture, image textures, barG textures, newButton texture, house texture, stage, and girl texture.
+    *
+    */
+
+   @Override
+   public void dispose() {
+       //dispose of the spriteBatch
+       spriteBatch.dispose();
+       //dispose of the background texture to free up memory
+       backgroundTexture.dispose();
+       //dispose of image textures
+       image1Texture.dispose();
+       image2Texture.dispose();
+       //dispose of barG texture
+       barGTexture.dispose();
+       //dispose of the newButton texture to free up memory
+       newButtonTexture.dispose();
+       //dispose of the house texture
+       houseTexture.dispose();
+       //dispose of the stage
+       stage.dispose();
+       //dispose of the girl texture
+       girlTexture.dispose();
+   }
+}
+
+package com.culminating.game;
+/**
+* [NAMED MAINSCREEN AS IT IS THE MAIN SCREEN OF THE MINIGAME NOT MAINSCREEN OF THE WHOLE GAME]
+*/
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Timer;
+
+//Base code from HollowBits
+
+/**
+* this class creates a minigame where you work at [UNNAMED FAST FOOD STORE]
+* you go to the register on the right to take orders and go to the stove on the left to make meals
+* when you take an order or make a meal, it counts the number of times you've done these actions, and if both have been
+* done three times, the game ends.
+*/
+public class MainScreen implements Screen {
+   SpriteBatch batch;
+   /**
+    * constant values for delta time, buttons, player sprite, food sprite, direction sprites,
+    */
+   public static final float SPEED = 250;
+   private Texture startButton;
+   private float startButtonX;
+
+   private float startButtonY;
+   private float startScale = 0.3f;
+
+   private static final int counterWidth = 800;
+   private static final int counterLength = 900;
+
+   private static final int stoveWidth = 700;
+   private static final int stoveLength = 800;
+
+   private static final int playerWidth = 500;
+   private static final int playerLength = 400;
+
+   private static final int foodWidth = 100;
+   private static final int foodLength = 100;
+
+   private static final int COOKWidth = 300;
+   private static final int COOKLength = 300;
+
+   /**
+    * declares int, Rectangle, float, and boolean variables and initializes some as well
+    */
+   int playerX = 500;
+   int playerY = 500;
+   Rectangle playerRect;
+   Rectangle stoveRect;
+   Rectangle counterRect;
+   Rectangle StoveHitBox;
+   Rectangle CounterHitBox;
+   int prevX;
+   int prevY;
+   int orders = 3;
+   int meals = 3;
+   int foodNumber = 0;
+   float foodPrep = 0;
+   float delay = 1.0f;
+   private float cooldown = 0.5f;
+   boolean timerDone;
+   boolean orderPlaced;
+   Timer.Task timerTask;
+   boolean foodDrawn;
+
+   /**
+    * extends the MiniGame class here as the variable game
+    */
+   com.culminating.game.Starter game;
+   /**
+    * declares Texture variables
+    */
+   Texture counter;
+   Texture counterTop;
+   Texture background;
+   Texture stove;
+   Texture player;
+   Texture cook;
+   Texture food;
+   Texture order;
+   Texture stoveTop;
+   Texture customerOne;
+   Texture customerTwo;
+   Texture customerThree;
+   Texture text;
+   private boolean startClicked;
+
+   /**
+    * specifies which game variable is being referred to
+    * initializes Texture variables with images
+    */
+   /**
+    * @param game
+    */
+   public MainScreen(com.culminating.game.Starter game)
+   {
+       this.game = game;
+       counter = new Texture("counter.png");
+       counterTop = new Texture("countertop.png");
+       background = new Texture("background.png");
+       stove = new Texture("stove.png");
+       stoveTop = new Texture("stovetop.png");
+       player = new Texture("player.png");
+       cook = new Texture ("COOK.png");
+       food = new Texture("burger.png");
+       order = new Texture("take order.png");
+       customerOne = new Texture("customer one.png");
+       customerTwo = new Texture("customer two.png");
+       customerThree = new Texture("customer three.png");
+       text = new Texture("text.png");
+
+   }
+
+   @Override
+   public void show()
+   {
+       batch = new SpriteBatch();
+       /*sets values for start button @author Shaama
+        * */
+       startButton = new Texture(Gdx.files.internal("startFINAL.png"));
+       startButtonX = 500;
+       startButtonY = 37;
+       startClicked = false;
+
+       /**
+        * creates rects for the player, stove, counter, and  hitboxes and gives them coordinates and uses the constant values
+        * for width and length. playerRect is also given players coordinates so they remain together
+        */
+       playerRect = new Rectangle(playerX, playerY, player.getWidth(), player.getHeight());
+       stoveRect = new Rectangle(-800, 650, stoveWidth, stoveLength);
+       counterRect = new Rectangle(2340, -170, counterWidth, counterLength);
+       StoveHitBox = new Rectangle(-790, 1800, stoveWidth, stoveLength);
+       CounterHitBox = new Rectangle(2330, -920, counterWidth, counterLength);
+       /**
+        * these variables are set to 0 to be used later
+        */
+       prevX = 0;
+       prevY = 0;
+
+       /**
+        * create inputProcessor to handle mouse clicks @author Shaama
+        * */
+       Gdx.input.setInputProcessor(new InputAdapter() {
+           @Override
+           /* checks to see if accept button is clicked using
+            * the touchDown method from the inputProcessor
+            * @author Shaama
+            *  */
+           public boolean touchDown (int x, int y, int pointer, int button) {
+               /*
+                * the coordinates of where a user clicks
+                * @author Shaama
+                * */
+               float touchX = Gdx.input.getX();
+               float touchY = Gdx.input.getY();
+
+               /*checks to see if the users click is within the width and height
+                * of a desired image
+                * @author Shaama*/
+               if(
+                       touchX >= startButtonX
+                               && touchX <= (startButtonX+startButton.getWidth()*startScale)
+                               && touchY <= Gdx.graphics.getHeight() - startButtonY
+                               && touchY >= ((Gdx.graphics.getHeight() - startButtonY) - startButton.getHeight() * startScale)
+               ){
+                   /*if image is clicked within region, startClicked = true;
+                    * @Shaama*/
+                   System.out.println("clicked");
+                   startClicked = true;
+               }
+               return true;
+           }
+
+       });
+
+
+   }
+
+   /**
+    * creates screen and draws
+    */
+
+
+   /**
+    * @param delta
+    */
+   @Override
+   public void render(float delta)
+   {
+       /**
+        * draws screen
+        */
+       ScreenUtils.clear(1, 0, 0, 1);
+
+       /**
+        * new sprite batch begins
+        * background, stove, counter, and player are drawn using constant width and lengths
+        */
+       batch.begin();
+       batch.draw(background, -190, -520, 1200, 1000);
+       batch.draw(stove,-68, -190, stoveWidth, stoveLength);
+       batch.draw(stoveTop, -95, -110, 840, 590);
+       batch.draw(counter, 85, -230, counterWidth, counterLength);
+       batch.draw(counterTop, -150, -120, 840, 590);
+       batch.draw(text, 0, -160, 400, 400);
+       batch.draw(player, playerX, playerY, playerWidth, playerLength);
+       batch.end();
+
+       /**
+        * collision detection
+        */
+       //base collision code from Yassa Taiseer on YouTube
+       if(playerRect.overlaps(stoveRect))
+       {
+           playerX = prevX;
+           playerY = prevY;
+
+       }
+       /**
+        * collision for hitboxes to draw controls
+        */
+       if(playerRect.overlaps(StoveHitBox))
+       {
+           /**
+            * if player and stove hitbox collide, draw cook button
+            */
+           batch.begin();
+           batch.draw(cook, 90, 280, COOKWidth, COOKLength);
+           batch.end();
+           //chatgpt used for button cooldown
+           if(cooldown > 0)
+           {
+               cooldown -= delta;
+           }
+           else
+           {
+               /**
+                * if ENTER key pressed, number of meals to make down by one and draws food
+                * then resets cooldown and timer
+                */
+               if (Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
+                   if (TimeUtils.nanoTime() - foodPrep > delay * 1000000000L) {
+                       meals = meals - 1;
+                       System.out.println(meals);
+                       batch.begin();
+                       batch.draw(food, 50, 300, foodWidth, foodLength);
+                       foodDrawn = true;
+                       foodNumber += 1;
+                       System.out.println(foodNumber);
+                       batch.end();
+                       foodPrep = TimeUtils.nanoTime();
+                       cooldown = 0.1f;
+                   }
+               }
+           }
+           /**
+            * draws different customers for different orders depending on order number
+            */
+       }
+       if(orders == 3)
+       {
+           batch.begin();
+           batch.draw(customerOne, 510, 200,  150, 150);
+           batch.end();
+       }
+       if(orders == 2)
+       {
+           batch.begin();
+           batch.draw(customerTwo, 520, 200,  130, 130);
+           batch.end();
+       }
+       if(orders == 1)
+       {
+           batch.begin();
+           batch.draw(customerThree, 530, 200,  110, 110);
+           batch.end();
+       }
+       /**
+        * draws food in different trays depending on order number
+        */
+       if(foodDrawn == true && foodNumber == 1)
+       {
+           batch.begin();
+           batch.draw(food, 25, 150, foodWidth, foodLength );
+           batch.end();
+       }
+       if(foodDrawn == true && foodNumber == 2)
+       {
+           batch.begin();
+           batch.draw(food, 25, 235, foodWidth, foodLength);
+           batch.end();
+       }
+       if(foodDrawn == true && foodNumber == 3)
+       {
+           batch.begin();
+           batch.draw(food, 25, 320, foodWidth, foodLength);
+           batch.end();
+       }
+
+       /**
+        * collision registering for counter hitbox
+        */
+
+       if(playerRect.overlaps(CounterHitBox))
+       {
+           batch.begin();
+           batch.draw(order, 300, 140, COOKWidth, COOKLength);
+           batch.end();
+           //chatgpt used for cooldown
+           if(cooldown > 0)
+           {
+               cooldown -= delta;
+           }
+           else
+           {
+               /**
+                * if ENTER key pressed, order is placed and number of orders
+                * go down by one. cooldown also resets
+                */
+               if(Gdx.input.isKeyPressed(Input.Keys.ENTER))
+               {
+                   orderPlaced = true;
+                   if(orderPlaced == true)
+                   {
+                       orders= orders - 1;
+                       System.out.println(orders);
+                       cooldown = 0.5f;
+
+                   }
+               }
+           }
+           /**
+            * if orders is less than or equal to 0 and food number is greater than or equal to 3
+            * prints 'shift over' and switches screens
+            */
+       }
+       if(orders <=  0 && foodNumber >= 3)
+       {
+           if (TimeUtils.nanoTime() - foodPrep > delay * 1000000000L) {
+               meals = meals - 1;
+               System.out.println("shift over");
+               cooldown = 0.1f;
+           }
+       }
+       /**
+        * collision detection for counter. if player and counter rect collide,
+        * player position reset to last position
+        */
+       if (playerRect.overlaps(counterRect))
+       {
+           playerX = prevX;
+           playerY = prevY;
+       }
+       /**
+        * key input for direction. also gets previous position for collision detection
+        */
+       if(Gdx.input.isKeyPressed(Input.Keys.UP))
+       {
+           prevY = playerY;
+           playerY += SPEED * Gdx.graphics.getDeltaTime();
+       }
+       else if(Gdx.input.isKeyPressed(Input.Keys.DOWN))
+       {
+           prevY = playerY;
+           playerY -= SPEED * Gdx.graphics.getDeltaTime();
+       }
+       else if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
+       {
+           prevX = playerX;
+           playerX -= SPEED * Gdx.graphics.getDeltaTime();
+       }
+       else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+       {
+           prevX = playerX;
+           playerX += SPEED * Gdx.graphics.getDeltaTime();
+       }
+       /**
+        * creates player rect
+        */
+       playerRect = new Rectangle(playerX, playerY, player.getWidth(), player.getHeight());
+
+       /*if startClicked is false, draw a startButton @author Shaama*/
+       if (!startClicked) {
+           // Draw the background image
+           batch.begin();
+           batch.draw(startButton, startButtonX, startButtonY, startButton.getWidth() * startScale, startButton.getHeight() * startScale);
+           batch.end();
+       }
+       /*if startClicked is true, switch to the next screen*/
+       if(startClicked){
+           //place holder logic
+           game.switchToStageTwo();
+       }
+   }
+
+   /**
+    * @param width
+    * @param height
+    */
+   @Override
+   public void resize(int width, int height) {
+
+   }
+
+   @Override
+   public void pause() {
+
+   }
+
+   @Override
+   public void resume() {
+
+   }
+
+   @Override
+   public void hide() {
+
+   }
+
+   @Override
+   public void dispose() {
+
+   }
+}
+
