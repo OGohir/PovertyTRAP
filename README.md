@@ -21,7 +21,8 @@ app is to inspire action towards supporting vulnerable communities.
     ● Realistic scenarios and unexpected challenges
     ● Explore the trade-offs of everyday decisions
     ● Gain insights into life's complexities and societal challenges
-# Life Simulation: experience the challenges of managing a characters life through various decisions
+# Life Simulation: 
+    - experience the challenges of managing a characters life through various decisions
 # Job: 
     - the job the user picks affects their income and difficulty (all jobs are still low income jobs however)
 # Family Dynamics:
@@ -54,5 +55,5 @@ app is to inspire action towards supporting vulnerable communities.
 ## Challenges
 
 1. LibGDX Setup: One of the biggest challenges was setting up libGDX, which was very difficult for me to start up at home. The program would work differently at times, which made me have to learn more code that integerates libGDX terminology.
-3. Learning New Code: while coding on libGDX, I had to learn different variances of java which were a bit difficult at first, but helped acheive a very nice outcome of my part of the game, which was the user interactive part.
-4. Lag: When I was first done testing out my part of the user interactive parts, there was a n issue with the user click, when I would click onto the button, the bar would change, but it would only change once then go back up to green. To fix this problem, I had to add a timer to each colour of the bar, red yellow and green, in order to time them orderly and remove from the screen after ebing clicked by a button.
+4. Learning New Code: while coding on libGDX, I had to learn different variances of java which were a bit difficult at first, but helped acheive a very nice outcome of my part of the game, which was the user interactive part.
+5. Lag: When I was first done testing out my part of the user interactive parts, there was a n issue with the user click, when I would click onto the button, the bar would change, but it would only change once then go back up to green. To fix this problem, I had to add a timer to each colour of the bar, red yellow and green, in order to time them orderly and remove from the screen after ebing clicked by a button.
