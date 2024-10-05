@@ -1,6 +1,6 @@
 # PovertyTRAP
 
-# Project Overview
+## Project Overview
 
 At its core, this app is a tool to foster understanding and empathy. By simulating the challenges of balancing work, income,
 housing, family, and basic needs, it sheds light on the difficult decisions and trade-offs that individuals in poverty often confront.
@@ -16,25 +16,25 @@ challenges firsthand, players gain insight into the importance of social support
 app is to inspire action towards supporting vulnerable communities.
 
 
-  # Features: Customizable characters and job choices
+  ## Features: Customizable characters and job choices
     ● Health, finance, and family management
     ● Realistic scenarios and unexpected challenges
     ● Explore the trade-offs of everyday decisions
     ● Gain insights into life's complexities and societal challenges
-# Life Simulation: 
+## Life Simulation: 
     - experience the challenges of managing a characters life through various decisions
-# Job: 
+## Job: 
     - the job the user picks affects their income and difficulty (all jobs are still low income jobs however)
-# Family Dynamics:
+## Family Dynamics:
     - Decide on having a family and see its impact on survival.
     
-# Basic Needs: 
+## Basic Needs: 
     - Income determines if you can afford housing and food.
     
-# Objective: 
+## Objective: 
     - Survive by balancing various aspects of the character's life.
     
-# How can a user keep their basic necessities in check such as their house?
+## How can a user keep their basic necessities in check such as their house?
 
     ● Income and Expenses: The player's income from their chosen job determines their ability to afford housing. If the
     income is sufficient to cover housing expenses, the character keeps their house.
