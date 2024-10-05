@@ -1,4 +1,4 @@
-## PovertyTRAP
+# PovertyTRAP
 
 # Project Overview
 
